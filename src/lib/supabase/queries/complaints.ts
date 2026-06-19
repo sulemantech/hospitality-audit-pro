@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import type { ComplaintCategory, ComplaintSeverity, ComplaintStatus } from "@/types";
 
 export interface ComplaintFilters {
@@ -12,7 +12,7 @@ export interface ComplaintFilters {
 }
 
 export async function getComplaints(filters: ComplaintFilters = {}) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { page = 1, per_page = 20, property_id, status, severity, category, search } = filters;
 
   let query = supabase
@@ -38,7 +38,7 @@ export async function getComplaints(filters: ComplaintFilters = {}) {
 }
 
 export async function getComplaintById(id: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("complaints")
     .select(`
@@ -51,7 +51,7 @@ export async function getComplaintById(id: string) {
 }
 
 export async function getComplaintUpdates(complaint_id: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("complaint_updates")
     .select("*")
@@ -62,7 +62,7 @@ export async function getComplaintUpdates(complaint_id: string) {
 }
 
 export async function getComplaintStats() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("complaints")
     .select("status, severity, property_id");
@@ -78,10 +78,10 @@ export async function getComplaintStats() {
 }
 
 export async function getProperties() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("properties")
-    .select("id, name, type, location")
+    .select("id, name, type, location, total_rooms, created_at")
     .eq("status", "active")
     .order("name");
   if (error) throw error;

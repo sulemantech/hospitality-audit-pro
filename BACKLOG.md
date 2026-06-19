@@ -142,11 +142,11 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 | Milestone | Total | Done | Remaining |
 |---|---|---|---|
 | Week 1 — Foundation | 10 | 5 | 5 |
-| Week 2 — Core Operations | 11 | 3 | 8 |
-| Week 3 — Intelligence Layer | 11 | 0 | 11 |
+| Week 2 — Core Operations | 11 | 8 | 3 |
+| Week 3 — Intelligence Layer | 11 | 1 | 10 |
 | Week 4 — Polish & Deploy | 9 | 0 | 9 |
 | Phase 2 — AI Layer | 6 | 0 | 6 |
-| **Total** | **47** | **8** | **39** |
+| **Total** | **47** | **14** | **33** |
 
 ---
 
@@ -261,27 +261,27 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 
 ### Module: Review Analytics
 
-- [ ] **W2-6** `p0` `L` `feature` `reviews` `week-2`
+- [x] **W2-6** `p0` `L` `feature` `reviews` `week-2` ✅ 2026-06-19
   **CSV import wizard: Drag & drop, column mapping, validation**
   Page `/dashboard/reviews/import`. Step 1: Upload CSV (drag & drop or file picker). Step 2: Map CSV columns to schema fields (reviewer_name, rating, text, date, source, property). Step 3: Preview first 5 rows. Step 4: Import with progress bar. Handle duplicates (skip by hash of text+date+property). Show import summary (imported / skipped / errored).
   > ✅ Done when: Upload a 50-row Google export CSV. All rows imported correctly. Re-importing same file shows 0 new, 50 skipped.
 
-- [ ] **W2-7** `p2` `M` `feature` `reviews` `week-2`
+- [x] **W2-7** `p2` `M` `feature` `reviews` `week-2` ✅ 2026-06-19
   **Review list view: Search, filter, sort**
   Page `/dashboard/reviews`. Table: Property, Reviewer, Rating (stars), Snippet (first 80 chars), Source badge, Date, Flags count. Search by text content. Filter: property, source, rating range, date range, flagged only. Sort by date, rating, flags.
   > ✅ Done when: Text search returns reviews containing the query. Flagged-only filter shows only reviews with ≥1 keyword match.
 
-- [ ] **W2-8** `p0` `L` `feature` `reviews` `week-2`
+- [x] **W2-8** `p0` `L` `feature` `reviews` `week-2` ✅ 2026-06-19
   **Keyword flagging engine: Configurable + SQL-based**
   Admin-configurable keyword list stored in DB table `review_keywords` (keyword, category, severity: critical/warning/positive, threshold). On review import/insert, run SQL function to match keywords (case-insensitive, partial match) and write matches to `review_keyword_matches`. Default keywords: bedbug, bed bug, ac, air conditioning, hot water, curtain, dirty, smell, noise, chris, clean, value. Positive keywords tracked separately.
   > ✅ Done when: Review containing "found a bedbug" → matched to `bedbug` keyword with `critical` severity. Keyword admin page shows add/edit/delete.
 
-- [ ] **W2-9** `p0` `M` `feature` `reviews` `week-2`
+- [x] **W2-9** `p0` `M` `feature` `reviews` `week-2` ✅ 2026-06-19
   **Alert generation: Threshold-based rules**
   Supabase DB trigger or function: when `review_keyword_matches` count for a keyword crosses threshold (configurable, default: critical=2, warning=5 in 30 days), insert into `alerts` table (property_id, keyword, severity, message, count, period). Alerts visible in dashboard alert panel. Auto-resolve alerts when count drops below threshold.
   > ✅ Done when: Import 3 reviews with "bedbug" → CRITICAL alert created for that property. Dashboard alert panel shows it immediately.
 
-- [ ] **W2-10** `p1` `M` `feature` `reviews` `week-2`
+- [x] **W2-10** `p1` `M` `feature` `reviews` `week-2` ✅ 2026-06-19
   **Keyword scoring: Simple sentiment without AI**
   Per review: count positive keyword matches vs negative keyword matches. Score = (positive_count - negative_count) / total_keywords. Classify: score > 0.3 → Positive, -0.3 to 0.3 → Neutral, < -0.3 → Negative. Store `sentiment` enum on review row. Used in analytics dashboard.
   > ✅ Done when: Review with "great staff, clean rooms, loved Chris" → Positive. Review with "bedbug, ac broken, dirty" → Negative.
@@ -342,7 +342,7 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Global filter bar on dashboard: Date range picker (presets: This Month, Last Month, This Quarter, This Year, Custom). Property type toggle: All / Hostel only / Hotel only. Selections update all dashboard widgets. Persist in URL query params so links are shareable.
   > ✅ Done when: Selecting "Last Quarter" + "Hostel only" updates KPI cards, property table, and alert panel to match filters.
 
-- [ ] **W3-9** `p1` `M` `feature` `reviews` `week-3`
+- [x] **W3-9** `p1` `M` `feature` `reviews` `week-3` ✅ 2026-06-19
   **Review analytics dashboard: Sentiment + keyword flags + source chart**
   Page `/dashboard/reviews/analytics`. Sentiment donut chart (% Positive/Neutral/Negative). Keyword Flags table: Keyword | Mentions | Trend (▲/▼ vs prior period) | Severity | Suggested Action. Source breakdown bar chart (Google / Booking / Tripadvisor / Trip.com / Other). Filter by property + date range.
   > ✅ Done when: Keyword table shows `bedbug: 4 mentions ⬆ CRITICAL — Professional treatment required`. Source chart percentages sum to 100%.

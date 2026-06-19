@@ -65,13 +65,21 @@ function HealthBar({ score }: { score: number | null }) {
   );
 }
 
-export default async function DashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { property?: string };
+}) {
+  const propertyId = searchParams.property;
+
   const [metrics, propertyHealth, alerts, recentComplaints, actionItems] = await Promise.all([
-    getDashboardMetrics(),
-    getPropertyHealth(),
-    getActiveAlerts(6),
-    getRecentComplaints(5),
-    getTopActionItems(4),
+    getDashboardMetrics(propertyId),
+    getPropertyHealth(propertyId),
+    getActiveAlerts(6, propertyId),
+    getRecentComplaints(5, propertyId),
+    getTopActionItems(4, propertyId),
   ]);
 
   const today = new Date().toLocaleDateString("en-CY", {

@@ -1,10 +1,8 @@
-"use client";
-
-import { useState } from "react";
+import { Suspense } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { getProperties } from "@/lib/supabase/queries/complaints";
 import type { AppUser } from "@/types";
 
-// Mock user until auth is wired up
 const MOCK_USER: AppUser = {
   id: "u1",
   email: "christos@beegroup.cy",
@@ -13,16 +11,14 @@ const MOCK_USER: AppUser = {
   created_at: new Date().toISOString(),
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [selectedPropertyId, setSelectedPropertyId] = useState("all");
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const properties = await getProperties();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar
-        user={MOCK_USER}
-        selectedPropertyId={selectedPropertyId}
-        onPropertyChange={setSelectedPropertyId}
-      />
+      <Suspense fallback={<div className="w-[220px] border-r border-border bg-card" />}>
+        <Sidebar user={MOCK_USER} properties={properties} />
+      </Suspense>
       <div className="flex flex-1 flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto">
           {children}

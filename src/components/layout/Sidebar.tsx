@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
   MessageSquareWarning,
@@ -36,24 +36,28 @@ const navItems = [
   { href: "/reports", label: "Reports", icon: FileText },
 ];
 
-const MOCK_PROPERTIES: Property[] = [
-  { id: "all", name: "All Properties", type: "hotel", location: "Cyprus", total_rooms: 0, created_at: "" },
-  { id: "p1", name: "Bee Hostel Paphos", type: "hostel", location: "Paphos", total_rooms: 30, created_at: "" },
-  { id: "p2", name: "Bee Hostel Limassol", type: "hostel", location: "Limassol", total_rooms: 25, created_at: "" },
-  { id: "p3", name: "Hotel A", type: "hotel", location: "Nicosia", total_rooms: 60, created_at: "" },
-  { id: "p4", name: "Hotel B", type: "hotel", location: "Larnaca", total_rooms: 45, created_at: "" },
-  { id: "p5", name: "Hotel C", type: "hotel", location: "Ayia Napa", total_rooms: 80, created_at: "" },
-];
+const ALL_OPTION: Property = { id: "all", name: "All Properties", type: "hotel", location: "Cyprus", total_rooms: 0, created_at: "" };
 
 interface SidebarProps {
   user?: AppUser | null;
-  selectedPropertyId?: string;
-  onPropertyChange?: (propertyId: string) => void;
+  properties?: Property[];
 }
 
-export function Sidebar({ user, selectedPropertyId = "all", onPropertyChange }: SidebarProps) {
+export function Sidebar({ user, properties = [] }: SidebarProps) {
   const pathname = usePathname();
-  const selectedProperty = MOCK_PROPERTIES.find((p) => p.id === selectedPropertyId) ?? MOCK_PROPERTIES[0];
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedPropertyId = searchParams.get("property") ?? "all";
+  const allProperties = [ALL_OPTION, ...properties];
+  const selectedProperty = allProperties.find((p) => p.id === selectedPropertyId) ?? ALL_OPTION;
+
+  function handlePropertyChange(id: string) {
+    const sp = new URLSearchParams(searchParams.toString());
+    if (id === "all") sp.delete("property");
+    else sp.set("property", id);
+    sp.delete("page");
+    router.replace(`${pathname}?${sp.toString()}`);
+  }
 
   const initials = user?.full_name
     ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -87,10 +91,10 @@ export function Sidebar({ user, selectedPropertyId = "all", onPropertyChange }: 
           <DropdownMenuContent align="start" className="w-[200px]">
             <DropdownMenuLabel>Select Property</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {MOCK_PROPERTIES.map((property) => (
+            {allProperties.map((property) => (
               <DropdownMenuItem
                 key={property.id}
-                onClick={() => onPropertyChange?.(property.id)}
+                onClick={() => handlePropertyChange(property.id)}
                 className={cn(
                   selectedPropertyId === property.id && "bg-accent text-accent-foreground font-medium"
                 )}
