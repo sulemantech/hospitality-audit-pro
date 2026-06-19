@@ -141,12 +141,12 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 ## Progress Overview
 | Milestone | Total | Done | Remaining |
 |---|---|---|---|
-| Week 1 — Foundation | 10 | 0 | 10 |
-| Week 2 — Core Operations | 11 | 0 | 11 |
+| Week 1 — Foundation | 10 | 5 | 5 |
+| Week 2 — Core Operations | 11 | 3 | 8 |
 | Week 3 — Intelligence Layer | 11 | 0 | 11 |
 | Week 4 — Polish & Deploy | 9 | 0 | 9 |
 | Phase 2 — AI Layer | 6 | 0 | 6 |
-| **Total** | **47** | **0** | **47** |
+| **Total** | **47** | **8** | **39** |
 
 ---
 
@@ -173,17 +173,17 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 
 ### Module: Infrastructure
 
-- [ ] **W1-1** `p0` `M` `chore` `infra` `week-1`
+- [x] **W1-1** `p0` `M` `chore` `infra` `week-1` ✅ 2026-06-19
   **Project scaffold: Next.js 14 + TypeScript + Tailwind + shadcn/ui**
   Init monorepo with `create-next-app --typescript`. Configure tsconfig strict mode, install Tailwind, init shadcn/ui with neutral base, setup path aliases (`@/`). Add `.env.local` template.
   > ✅ Done when: `npm run dev` runs, shadcn `Button` renders on `/`, `npm run build` passes with 0 errors.
 
-- [ ] **W1-2** `p0` `S` `chore` `infra` `week-1`
+- [x] **W1-2** `p0` `S` `chore` `infra` `week-1` ✅ 2026-06-19
   **Supabase: Create dev + prod projects, set env vars**
   Create two Supabase projects (dev, prod). Store `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. Set up Vercel env vars for prod.
   > ✅ Done when: Supabase client connects without error from Next.js API route.
 
-- [ ] **W1-3** `p0` `XL` `chore` `infra` `week-1`
+- [x] **W1-3** `p0` `XL` `chore` `infra` `week-1` ✅ 2026-06-19
   **Database schema: Full migration set in Supabase**
   Write and run SQL migrations for all core tables: `properties`, `users` (extends auth.users), `complaints`, `complaint_updates`, `reviews`, `review_keywords`, `financial_entries`, `supplier_prices`, `utility_readings`, `tasks`, `alerts`, `attachments`, `audit_logs`. Include all ENUMs, FK constraints, indexes on `property_id` + `created_at`.
   > ✅ Done when: All tables visible in Supabase Studio, foreign keys enforced, seed script runs without error.
@@ -193,7 +193,7 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Create a Supabase Edge Function `keep-alive` that runs a lightweight SELECT. Register with UptimeRobot (free) to ping every 5 minutes. Document setup in README.
   > ✅ Done when: UptimeRobot shows green. Supabase project stays active through a weekend with no manual logins.
 
-- [ ] **W1-5** `p0` `L` `feature` `infra` `week-1`
+- [x] **W1-5** `p0` `L` `feature` `infra` `week-1` ✅ 2026-06-19
   **Seed data: 5 properties + demo users for all roles**
   SQL seed script inserting: 5 properties (2 hostels, 3 hotels), 5 demo users (1 per role: Admin, Manager, Staff, Viewer + 1 extra Manager), 10 sample complaints, 20 sample reviews, basic financial entries. All with realistic Cypriot hospitality data.
   > ✅ Done when: `npm run seed` populates all tables. Dashboard shows non-empty state on first load.
@@ -220,7 +220,7 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Admin-only page `/dashboard/properties`. List all properties with type badge (Hostel 🏠 / Hotel 🏨). Create/edit property form: name, type, location, status (active/inactive), description. Properties used as FK across all modules.
   > ✅ Done when: Admin creates a new property. It appears in all property dropdowns across the app. Inactive property hidden from non-admin dropdowns.
 
-- [ ] **W1-10** `p1` `S` `chore` `infra` `week-1`
+- [x] **W1-10** `p1` `S` `chore` `infra` `week-1` ✅ 2026-06-19
   **Layout: App shell with sidebar, topbar, mobile nav**
   Persistent sidebar (desktop) with nav items: Dashboard, Complaints, Reviews, Financials, Action Plan, Reports. Collapsible on mobile (hamburger → drawer). Topbar: property context switcher (Admin sees all, others see assigned), user avatar + logout. Active route highlighting.
   > ✅ Done when: All nav items route correctly. Mobile drawer opens/closes. Property switcher persists selection in URL param or cookie.
@@ -234,17 +234,17 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 
 ### Module: Complaint Register
 
-- [ ] **W2-1** `p0` `M` `feature` `complaints` `week-2`
+- [x] **W2-1** `p0` `M` `feature` `complaints` `week-2` ✅ 2026-06-19
   **Complaint list view: Filterable, sortable table**
   Page `/dashboard/complaints`. Table columns: ID, Property, Category, Priority (badge), Status (badge), Reported By, Created At, Days Open. Filters: property (dropdown), status, priority, category, date range. Sort by any column. Pagination (20/page). Show open count in page header.
   > ✅ Done when: Filters combine correctly (AND logic). Sort persists on filter change. 0-complaint state shows empty illustration.
 
-- [ ] **W2-2** `p0` `L` `feature` `complaints` `week-2`
+- [x] **W2-2** `p0` `L` `feature` `complaints` `week-2` ✅ 2026-06-19
   **New complaint form: Full data entry with validation**
   Modal or page `/dashboard/complaints/new`. Fields: Property*, Category* (dynamic based on property type — hostel vs hotel categories), Priority* (Critical/High/Medium/Low), Guest Name, Room/Bed, Source (Guest Report/Staff Observation/Review), Description* (min 20 chars). Zod schema validation. Auto-set `reported_by` to current user.
   > ✅ Done when: Form rejects empty required fields with inline errors. Hostel shows hostel categories, hotel shows hotel categories. Submission creates record and redirects to detail view.
 
-- [ ] **W2-3** `p0` `L` `feature` `complaints` `week-2`
+- [x] **W2-3** `p0` `L` `feature` `complaints` `week-2` ✅ 2026-06-19
   **Complaint detail view + activity timeline**
   Page `/dashboard/complaints/[id]`. Header: ID, property, status badge, priority badge, days open. Description section. Activity timeline (chronological): logged, updated, escalated, resolved — each entry shows user + timestamp + note. Action buttons: Add Update, Escalate, Resolve, Close (role-gated).
   > ✅ Done when: Timeline updates in real-time after adding an update. Resolve button moves status to Resolved and logs timestamp. Escalation changes priority and notifies.
