@@ -68,7 +68,7 @@ Run migrations in order via Supabase SQL Editor:
 4. `supabase/migrations/004_content_hash_unique.sql`
 5. `supabase/migrations/005_action_plans.sql`
 
-## Features
+## Features (Current)
 
 - **Dashboard** — property health scores, active alerts, recent complaints
 - **Complaints** — log, track, and resolve guest issues with timeline
@@ -77,3 +77,63 @@ Run migrations in order via Supabase SQL Editor:
 - **Reports** — printable 30-day operational audit summary
 - **Financials** — OTA commission analysis, supplier benchmarking, utility costs
 - **Settings** — property management, system info
+
+## The Golden Window Problem
+
+Once a review is posted on Booking.com or Google it cannot be deleted — only responded to. The entire operational challenge is intercepting the guest in the **24–72 hour window** between a bad experience and a public review.
+
+```
+Guest has bad experience
+        ↓
+[GOLDEN WINDOW: 24–72 hours]  ←  act here
+        ↓
+Review posted on Booking.com  ←  damage is permanent
+```
+
+A guest who feels heard almost never posts a bad review. A guest who felt ignored almost always does.
+
+## Proactive Communication Layer (Roadmap)
+
+The current system is a high-quality dashboard — it shows what's happening when you open it. The next phase turns it into a system that **comes to you**, without requiring anyone to check in.
+
+### What needs to be built
+
+| Priority | Feature | What it prevents |
+|---|---|---|
+| 1 | **WhatsApp alerts on critical complaints** | Manager learns instantly, not hours later |
+| 2 | **Auto-escalation if complaint unresolved after 2hrs** | Forgotten complaints that become bad reviews |
+| 3 | **Guest follow-up reminder before checkout** | Guest leaves feeling heard — no public review |
+| 4 | **Daily 8am owner digest** | Owner always knows the true situation without asking |
+| 5 | **New flagged review alert** | Manager responds within 24hrs — platform ranking protected |
+| 6 | **Recurring room/category detection** | Structural problems caught before they repeat |
+| 7 | **Shift handover view** | Open complaints don't get lost between staff shifts |
+
+### The full proactive loop
+
+```
+Guest complains to front desk
+    ↓
+Staff logs complaint (30 seconds)
+    ↓
+WhatsApp → Property Manager: "Critical. Room 14. Pest. Just now."
+    ↓
+Manager resolves it, marks done in system
+    ↓
+If NOT resolved in 2hrs → WhatsApp → Owner: "Still open."
+    ↓
+Guest checked out feeling heard → no public review
+    ↓
+If review posted anyway → AI flags it → WhatsApp → Manager:
+"New negative review mentions 'pest'. Respond within 24hrs."
+    ↓
+Owner receives 8am digest: "Yesterday — 2 complaints, both resolved.
+1 new flagged review. AI recommends: Room 14 inspection."
+```
+
+### Why WhatsApp, not email
+
+Property managers and owners in the Cyprus/MENA hospitality market operate primarily on WhatsApp. Email digests get read hours later or ignored. A WhatsApp message at 2pm on an unresolved critical complaint gets acted on in minutes. The integration target is **WhatsApp Business API**.
+
+## Current System Limitation
+
+Right now the system is **reactive** — it responds to events already logged. Every feature in the roadmap above moves it toward **proactive** — the system detects, escalates, and communicates without anyone having to remember to check a dashboard.
