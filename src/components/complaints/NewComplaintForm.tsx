@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createClient } from "@/lib/supabase/client";
+import { logComplaint } from "@/lib/actions/complaints";
 import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 const HOSTEL_CATEGORIES = ["cleanliness", "maintenance", "noise", "staff", "facilities", "pest", "safety", "billing", "other"];
@@ -54,14 +54,8 @@ export function NewComplaintForm({ properties }: { properties: Property[] }) {
 
   async function onSubmit(data: FormData) {
     setServerError(null);
-    const supabase = createClient();
-    const { error } = await supabase.from("complaints").insert({
-      ...data,
-      room_number: data.room_number || null,
-      guest_name: data.guest_name || null,
-      assigned_to: data.assigned_to || null,
-    });
-    if (error) { setServerError(error.message); return; }
+    const result = await logComplaint(data);
+    if (!result.success) { setServerError(result.error ?? "Failed to log complaint"); return; }
     setSuccess(true);
     setTimeout(() => router.push("/complaints"), 1200);
   }
