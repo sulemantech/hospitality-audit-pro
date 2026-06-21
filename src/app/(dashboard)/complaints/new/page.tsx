@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Header } from "@/components/layout/Header";
 import { NewComplaintForm } from "@/components/complaints/NewComplaintForm";
 import { getProperties } from "@/lib/supabase/queries/complaints";
