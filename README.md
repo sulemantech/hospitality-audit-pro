@@ -4,6 +4,24 @@ Internal operations platform for Bee Hospitality Group (Cyprus) — complaint tr
 
 Built with Next.js 14, Supabase, Vercel AI SDK + Gemini 2.5 Flash.
 
+## What This Is
+
+Hotels and hostels deal with the same operational problems repeatedly — pest complaints, cleanliness failures, maintenance backlogs — but typically manage them through WhatsApp groups, paper logs, and spreadsheets. Problems fall through the cracks, patterns go unnoticed, and by the time an owner sees a Google review saying "cockroaches in room 12" the damage is already public.
+
+**Bee Hospitality Audit Pro** is a command centre for the people who run the properties. It captures complaints the moment they happen, monitors guest reviews for emerging patterns, triggers alerts when the same issue is mentioned repeatedly, and uses AI to synthesise everything into a prioritised action plan — telling you exactly what to fix, who should fix it, and by when.
+
+**The demo story in one sentence:** *A guest complained about a pest in room 14. Two weeks later, 6 Google reviews mention "bugs". The system flagged it, raised an alert, and the AI generated a critical task assigned to the Maintenance Team with a 1-day deadline — before the owner even knew there was a pattern.*
+
+## Target Users
+
+| Role | How they use it |
+|---|---|
+| **Owner / GM** | Morning dashboard check — any fires? What does AI say to prioritise today? |
+| **Property Manager** | Log complaints as they come in, track resolution, monitor flagged reviews |
+| **Front Desk** | Log a guest complaint in under 60 seconds without paperwork |
+| **Maintenance Team** | See tasks assigned to them in the AI Action Plan |
+| **Finance / Owner** | Financials page — OTA commission leakage, supplier savings, utility costs |
+
 ## Demo Credentials
 
 | Field | Value |
