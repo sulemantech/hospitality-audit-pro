@@ -8,7 +8,6 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 

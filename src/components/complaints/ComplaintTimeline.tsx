@@ -64,7 +64,7 @@ export function ComplaintTimeline({ updates, complaintId }: { updates: Update[];
       <div className="relative">
         <div className="absolute left-3.5 top-0 bottom-0 w-px bg-border" />
         <div className="space-y-4">
-          {updates.map((u, i) => (
+          {updates.map((u) => (
             <div key={u.id} className="relative flex gap-4 pl-8">
               <div className="absolute left-0 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card">
                 {ACTION_ICON[u.action] ?? <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />}

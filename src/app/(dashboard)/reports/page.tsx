@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getProperties } from "@/lib/supabase/queries/complaints";
-import { cn, formatDate } from "@/lib/utils";
-import { Printer, Download, AlertTriangle, Star, MessageSquareWarning, TrendingDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Printer, AlertTriangle, Star, MessageSquareWarning, TrendingDown } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

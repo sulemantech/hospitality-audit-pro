@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, formatRelativeDate, cn } from "@/lib/utils";
+import { formatRelativeDate, cn } from "@/lib/utils";
 import {
   getDashboardMetrics, getPropertyHealth,
   getActiveAlerts, getRecentComplaints, getTopActionItems,

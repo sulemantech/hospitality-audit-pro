@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TrendingDown, TrendingUp, AlertTriangle, Euro, BarChart3, ShoppingCart } from "lucide-react";
+import { TrendingDown, TrendingUp, AlertTriangle, Euro, ShoppingCart } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -33,11 +33,7 @@ const UTILITY_DATA = [
   { month: "Jun", electricity: 9400, water: 1920, gas: 180 },
 ];
 
-export default async function FinancialsPage({
-  searchParams,
-}: {
-  searchParams: { property?: string };
-}) {
+export default async function FinancialsPage() {
   const totalRevenue = OTA_DATA.reduce((s, c) => s + c.revenue, 0);
   const totalCommission = OTA_DATA.reduce((s, c) => s + (c.revenue * c.commission) / 100, 0);
   const directRevenue = OTA_DATA.find((c) => c.channel === "Direct / Walk-in")?.revenue ?? 0;
@@ -89,7 +85,6 @@ export default async function FinancialsPage({
             {OTA_DATA.sort((a, b) => b.revenue - a.revenue).map((row) => {
               const commissionAmount = (row.revenue * row.commission) / 100;
               const netRevenue = row.revenue - commissionAmount;
-              const barW = Math.round((row.revenue / maxRevenue) * 100);
               return (
                 <div key={row.channel}>
                   <div className="flex items-center justify-between mb-1 text-xs">
