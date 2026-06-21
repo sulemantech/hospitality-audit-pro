@@ -1,23 +1,80 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
-import { Card, CardContent } from "@/components/ui/card";
-import { ClipboardList } from "lucide-react";
+import { ActionPlanClient } from "@/components/action-plan/ActionPlanClient";
+import { createAdminClient } from "@/lib/supabase/server";
+import { getProperties } from "@/lib/supabase/queries/complaints";
+import { getLatestActionPlan } from "@/lib/supabase/queries/action-plan";
 
-export default function ActionPlanPage() {
+export const dynamic = "force-dynamic";
+
+async function getActionPlanContext(propertyId?: string) {
+  const supabase = createAdminClient();
+
+  let complaintsQ = supabase
+    .from("complaints")
+    .select("id", { count: "exact", head: true })
+    .in("status", ["open", "pending"]);
+  if (propertyId) complaintsQ = complaintsQ.eq("property_id", propertyId);
+
+  let alertsQ = supabase
+    .from("alerts")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "active");
+  if (propertyId) alertsQ = alertsQ.eq("property_id", propertyId);
+
+  let reviewsQ = supabase
+    .from("reviews")
+    .select("id", { count: "exact", head: true })
+    .eq("sentiment", "negative")
+    .gt("flag_count", 0)
+    .gte("review_date", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
+  if (propertyId) reviewsQ = reviewsQ.eq("property_id", propertyId);
+
+  const [{ count: complaints }, { count: alerts }, { count: reviews }] = await Promise.all([
+    complaintsQ, alertsQ, reviewsQ,
+  ]);
+
+  return {
+    openComplaints: complaints ?? 0,
+    activeAlerts: alerts ?? 0,
+    flaggedReviews: reviews ?? 0,
+  };
+}
+
+export default async function ActionPlanPage({
+  searchParams,
+}: {
+  searchParams: { property?: string };
+}) {
+  const propertyId = searchParams.property;
+
+  const [context, properties, initialPlan] = await Promise.all([
+    getActionPlanContext(propertyId),
+    getProperties(),
+    getLatestActionPlan(propertyId),
+  ]);
+
+  const selectedProperty = propertyId
+    ? properties.find((p) => p.id === propertyId)
+    : undefined;
+
   return (
     <>
-      <Header title="Action Plan" subtitle="Prioritised operational tasks generated from complaints, reviews and financial data" />
-      <div className="p-6 animate-fade-in">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-xl bg-muted p-4 mb-4">
-              <ClipboardList className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground">Action Plan Generator</h3>
-            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-              Sprint 2 · W2-8 — Rule-based action item engine coming next.
-            </p>
-          </CardContent>
-        </Card>
+      <Header
+        title="Action Plan"
+        subtitle="AI-generated prioritised tasks from complaints, alerts, and review patterns"
+      />
+      <div className="p-6 max-w-3xl animate-fade-in">
+        <Suspense fallback={<div className="h-40 rounded-lg bg-muted animate-pulse" />}>
+          <ActionPlanClient
+            propertyId={propertyId}
+            propertyName={selectedProperty?.name}
+            openComplaints={context.openComplaints}
+            activeAlerts={context.activeAlerts}
+            flaggedReviews={context.flaggedReviews}
+            initialPlan={initialPlan}
+          />
+        </Suspense>
       </div>
     </>
   );
