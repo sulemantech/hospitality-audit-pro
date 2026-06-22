@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Building2, ChevronDown } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useProperties, ALL_PROPERTY } from "@/components/layout/PropertyContext";
 
 interface Notification {
   id: string;
@@ -55,29 +57,79 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle }: HeaderProps) {
+  const properties   = useProperties();
+  const pathname     = usePathname();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const selectedId   = searchParams.get("property") ?? "all";
+  const allProps     = [ALL_PROPERTY, ...properties];
+  const selectedProp = allProps.find((p) => p.id === selectedId) ?? ALL_PROPERTY;
+
+  function changeProperty(id: string) {
+    const sp = new URLSearchParams(searchParams.toString());
+    if (id === "all") sp.delete("property"); else sp.set("property", id);
+    sp.delete("page");
+    router.replace(`${pathname}?${sp.toString()}`);
+  }
+
   const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-6">
-      {/* Page title */}
-      <div className="flex-1">
-        <h1 className="text-base font-semibold text-foreground">{title}</h1>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-4">
+
+      {/* ── Property selector ───────────────────────────── */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 h-8 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors shrink-0 max-w-[200px] focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <Building2 className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="truncate">{selectedProp.name}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[230px]">
+          <DropdownMenuLabel>Switch Property</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {allProps.map((p) => (
+            <DropdownMenuItem
+              key={p.id}
+              onClick={() => changeProperty(p.id)}
+              className={selectedId === p.id ? "bg-accent text-accent-foreground font-medium" : ""}
+            >
+              <span className="truncate flex-1">{p.name}</span>
+              {selectedId === p.id && (
+                <span className="ml-2 text-[10px] text-primary font-semibold shrink-0">active</span>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* ── Divider ─────────────────────────────────────── */}
+      <div className="h-5 w-px bg-border shrink-0" />
+
+      {/* ── Page title ──────────────────────────────────── */}
+      <div className="flex-1 min-w-0">
+        <h1 className="text-sm font-semibold text-foreground leading-none truncate">{title}</h1>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+        )}
       </div>
 
-      {/* Search */}
+      {/* ── Search ──────────────────────────────────────── */}
       <div className="relative hidden md:flex items-center">
-        <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
         <Input
-          placeholder="Search complaints, reviews…"
-          className="pl-8 w-60 h-8 text-sm bg-background"
+          placeholder="Search…"
+          className="pl-8 w-52 h-8 text-sm bg-background"
         />
       </div>
 
-      {/* Notifications */}
+      {/* ── Notifications ───────────────────────────────── */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" className="relative">
+          <Button variant="ghost" size="icon-sm" className="relative shrink-0">
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
@@ -99,13 +151,10 @@ export function Header({ title, subtitle }: HeaderProps) {
               <div className="flex items-center gap-2 w-full">
                 <span
                   className={`status-dot shrink-0 ${
-                    notif.type === "critical"
-                      ? "bg-red-500"
-                      : notif.type === "high"
-                      ? "bg-orange-500"
-                      : notif.type === "medium"
-                      ? "bg-amber-500"
-                      : "bg-blue-500"
+                    notif.type === "critical" ? "bg-red-500"
+                    : notif.type === "high"   ? "bg-orange-500"
+                    : notif.type === "medium" ? "bg-amber-500"
+                    : "bg-blue-500"
                   }`}
                 />
                 <span className="text-sm font-medium flex-1">{notif.title}</span>
