@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const STORAGE_KEY = "bee-complaints-property";
 
 interface Property { id: string; name: string; type: string; }
 
@@ -26,10 +28,23 @@ export function ComplaintFilters({ properties, searchParams }: Props) {
       const params = new URLSearchParams();
       const merged = { ...searchParams, [key]: value, page: "1" };
       Object.entries(merged).forEach(([k, v]) => { if (v) params.set(k, v); });
+      if (key === "property") {
+        if (value) localStorage.setItem(STORAGE_KEY, value);
+        else localStorage.removeItem(STORAGE_KEY);
+      }
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams]
   );
+
+  // On mount: restore saved property if URL has none
+  useEffect(() => {
+    if (!searchParams.property) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) update("property", saved);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasFilters = !!(searchParams.property || searchParams.status || searchParams.severity || searchParams.category || searchParams.search);
 
@@ -94,7 +109,7 @@ export function ComplaintFilters({ properties, searchParams }: Props) {
 
       {/* Clear */}
       {hasFilters && (
-        <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground" onClick={() => router.push(pathname)}>
+        <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground" onClick={() => { localStorage.removeItem(STORAGE_KEY); router.push(pathname); }}>
           <X className="h-3.5 w-3.5 mr-1" /> Clear
         </Button>
       )}
