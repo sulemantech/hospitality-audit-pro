@@ -85,7 +85,7 @@ export async function sendDailyDigest({
     </tr>
   `).join("");
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: ALERT_EMAIL,
     subject: `☀️ Morning Digest — ${today}`,
