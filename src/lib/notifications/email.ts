@@ -3,7 +3,7 @@ import { Resend } from "resend";
 const FROM = "Bee Hospitality <onboarding@resend.dev>";
 const ALERT_EMAIL = process.env.ALERT_EMAIL ?? "metafront.net@gmail.com";
 
-function getResend() {
+export function getResendClient() {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     console.error("[email] RESEND_API_KEY is not set — emails will fail");
@@ -32,7 +32,7 @@ export async function sendComplaintEmail({
   const colour = severity === "critical" ? "#dc2626" : severity === "high" ? "#ea580c" : "#d97706";
   const room = roomNumber ? `Room ${roomNumber} · ` : "";
 
-  const result = await getResend().emails.send({
+  const result = await getResendClient().emails.send({
     from: FROM,
     to: ALERT_EMAIL,
     subject: `[${severity.toUpperCase()}] ${category} complaint — ${propertyName}`,
@@ -85,7 +85,7 @@ export async function sendDailyDigest({
     </tr>
   `).join("");
 
-  await getResend().emails.send({
+  await getResendClient().emails.send({
     from: FROM,
     to: ALERT_EMAIL,
     subject: `☀️ Morning Digest — ${today}`,
