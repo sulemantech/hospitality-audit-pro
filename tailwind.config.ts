@@ -62,10 +62,10 @@ const config: Config = {
           dark: "#92400E",
         },
         brand: {
-          DEFAULT: "#16563B",
-          light: "#ECFDF5",
-          muted: "#D1FAE5",
-          dark: "#0E3D2A",
+          DEFAULT: "#6D28D9",
+          light: "#EDE9FE",
+          muted: "#DDD6FE",
+          dark: "#1C0B4E",
         },
       },
       borderRadius: {

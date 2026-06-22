@@ -9,7 +9,7 @@ import {
 // ── Shared constants ──────────────────────────────────────────────────────────
 const TICK  = { fontSize: 10, fill: "hsl(220 9% 52%)" };
 const GRID  = "hsl(220 13% 91%)";
-const CATS  = ["#DC2626", "#EA580C", "#D97706", "#2563EB", "#7C3AED", "#16563B"];
+const CATS  = ["#DC2626", "#EA580C", "#D97706", "#2563EB", "#7C3AED", "#0891B2"];
 
 // ── Custom tooltip ────────────────────────────────────────────────────────────
 function ChartTip({
@@ -85,8 +85,8 @@ export function DashboardCharts({ data }: { data: ChartData }) {
               <AreaChart data={data.complaintTrend} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
                 <defs>
                   <linearGradient id="g-complaints" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor="#16563B" stopOpacity={0.20} />
-                    <stop offset="100%" stopColor="#16563B" stopOpacity={0.01} />
+                    <stop offset="0%"   stopColor="#7C3AED" stopOpacity={0.20} />
+                    <stop offset="100%" stopColor="#7C3AED" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
@@ -95,10 +95,10 @@ export function DashboardCharts({ data }: { data: ChartData }) {
                 <Tooltip content={<ChartTip />} cursor={{ stroke: GRID, strokeWidth: 1 }} />
                 <Area
                   type="monotone" dataKey="count" name="Complaints"
-                  stroke="#16563B" strokeWidth={2}
+                  stroke="#7C3AED" strokeWidth={2}
                   fill="url(#g-complaints)"
                   dot={false}
-                  activeDot={{ r: 4, fill: "#16563B", strokeWidth: 0 }}
+                  activeDot={{ r: 4, fill: "#7C3AED", strokeWidth: 0 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -142,7 +142,7 @@ export function DashboardCharts({ data }: { data: ChartData }) {
                   />
                   <Bar dataKey="count" name="Complaints" radius={[0, 5, 5, 0]} maxBarSize={20}>
                     {data.categoryBreakdown.map((_, i) => (
-                      <Cell key={i} fill={CATS[i] ?? "#16563B"} />
+                      <Cell key={i} fill={CATS[i] ?? "#7C3AED"} />
                     ))}
                   </Bar>
                 </BarChart>

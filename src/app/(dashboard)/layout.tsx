@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { getProperties } from "@/lib/supabase/queries/complaints";
 import type { AppUser } from "@/types";
@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Suspense fallback={<div className="w-[220px] border-r border-border bg-card" />}>
+      <Suspense fallback={<div className="w-[72px] shrink-0" style={{ background: "#7C3AED" }} />}>
         <Sidebar user={MOCK_USER} properties={properties} />
       </Suspense>
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -27,3 +27,4 @@ export default async function DashboardLayout({ children }: { children: React.Re
     </div>
   );
 }
+
