@@ -60,7 +60,7 @@ export function ComplaintActions({ complaintId, currentStatus }: Props) {
       <Button
         size="sm" variant="outline" className="h-8 text-xs text-muted-foreground"
         disabled={!!loading}
-        onClick={() => transition("closed", "closed", "Complaint closed without full resolution.")}
+        onClick={() => transition("closed", "closed", "Complaint closed without full resolution.", { resolved_at: new Date().toISOString() })}
       >
         {loading === "closed" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
         <XCircle className="h-3.5 w-3.5" /> Close
