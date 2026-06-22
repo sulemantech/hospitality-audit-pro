@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, MessageSquareWarning, Star, TrendingDown,
   ClipboardList, FileText, Settings, LogOut,
@@ -31,7 +31,13 @@ const TEXT_ON  = "#ffffff";
 const TEXT_OFF = "rgba(255,255,255,0.55)";
 
 export function Sidebar({ user }: { user?: AppUser | null }) {
-  const pathname = usePathname();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
+  const propertyId   = searchParams.get("property");
+
+  function navHref(base: string) {
+    return propertyId ? `${base}?property=${propertyId}` : base;
+  }
 
   const initials = user?.full_name
     ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -61,7 +67,7 @@ export function Sidebar({ user }: { user?: AppUser | null }) {
           return (
             <Link
               key={href}
-              href={href}
+              href={navHref(href)}
               className="flex flex-col items-center gap-1 w-full py-2 rounded-xl transition-colors"
               style={{ background: active ? ACTIVE : "transparent" }}
               onMouseEnter={(e) => {
@@ -86,7 +92,7 @@ export function Sidebar({ user }: { user?: AppUser | null }) {
 
         {user?.role === "admin" && (
           <Link
-            href="/settings"
+            href={navHref("/settings")}
             className="flex flex-col items-center gap-1 w-full py-2 rounded-xl transition-colors"
             style={{
               background: pathname.startsWith("/settings") ? ACTIVE : "transparent",
