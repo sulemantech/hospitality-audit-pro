@@ -30,8 +30,8 @@ export async function logComplaint(
 
   if (error) return { success: false, error: error.message };
 
-  // Send notifications for critical and high severity only
-  if (data.severity === "critical" || data.severity === "high") {
+  // Send notifications for critical, high, and medium severity
+  if (data.severity === "critical" || data.severity === "high" || data.severity === "medium") {
     const { data: property } = await supabase
       .from("properties")
       .select("name")
@@ -39,9 +39,10 @@ export async function logComplaint(
       .single();
 
     const propertyName = property?.name ?? "Unknown Property";
+    console.log(`[complaint] Firing notifications for ${data.severity} complaint at ${propertyName}`);
 
     // Fire both in parallel, never block on failure
-    await Promise.allSettled([
+    const [pushResult, emailResult] = await Promise.allSettled([
       pushComplaintAlert({
         severity: data.severity,
         category: data.category,
@@ -60,6 +61,8 @@ export async function logComplaint(
         assignedTo: data.assigned_to,
       }),
     ]);
+    if (pushResult.status === "rejected") console.error("[complaint] Push failed:", pushResult.reason);
+    if (emailResult.status === "rejected") console.error("[complaint] Email failed:", emailResult.reason);
   }
 
   return { success: true };

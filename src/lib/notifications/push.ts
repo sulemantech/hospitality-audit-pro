@@ -15,7 +15,7 @@ export async function sendPush({
   tags?: string[];
 }) {
   try {
-    await fetch(NTFY_URL, {
+    const res = await fetch(NTFY_URL, {
       method: "POST",
       headers: {
         "Title": title,
@@ -25,8 +25,9 @@ export async function sendPush({
       },
       body: message,
     });
-  } catch {
-    // Never block the main flow if push fails
+    if (!res.ok) console.error(`[ntfy] HTTP ${res.status} posting to ${NTFY_URL}`);
+  } catch (err) {
+    console.error("[ntfy] fetch failed:", err);
   }
 }
 

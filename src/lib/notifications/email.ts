@@ -1,5 +1,9 @@
 import { Resend } from "resend";
 
+if (!process.env.RESEND_API_KEY) {
+  console.error("[email] RESEND_API_KEY is not set — emails will fail");
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Bee Hospitality <onboarding@resend.dev>";
 const ALERT_EMAIL = process.env.ALERT_EMAIL ?? "shahsuliman@gmail.com";
@@ -24,7 +28,7 @@ export async function sendComplaintEmail({
   const colour = severity === "critical" ? "#dc2626" : severity === "high" ? "#ea580c" : "#d97706";
   const room = roomNumber ? `Room ${roomNumber} · ` : "";
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: FROM,
     to: ALERT_EMAIL,
     subject: `[${severity.toUpperCase()}] ${category} complaint — ${propertyName}`,
@@ -48,6 +52,8 @@ export async function sendComplaintEmail({
       </div>
     `,
   });
+  if (result.error) console.error("[email] Resend error sending complaint email:", result.error);
+  else console.log(`[email] Complaint alert sent to ${ALERT_EMAIL} (id: ${result.data?.id})`);
 }
 
 export async function sendDailyDigest({
