@@ -1,11 +1,11 @@
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getProperties } from "@/lib/supabase/queries/complaints";
 import { cn } from "@/lib/utils";
-import { Printer, AlertTriangle, Star, MessageSquareWarning, TrendingDown } from "lucide-react";
+import { AlertTriangle, Star, MessageSquareWarning, TrendingDown } from "lucide-react";
+import { PrintButton } from "@/components/reports/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +60,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: { pr
 
         {/* Toolbar */}
         <div className="flex items-center gap-3 print:hidden">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => {}} asChild>
-            <button onClick={() => window.print()}>
-              <Printer className="h-3.5 w-3.5" /> Print Report
-            </button>
-          </Button>
+          <PrintButton />
           <span className="text-xs text-muted-foreground">
             {selectedProperty ? `${selectedProperty.name} · ` : "All properties · "}{reportDate}
           </span>
