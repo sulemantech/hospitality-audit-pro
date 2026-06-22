@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const STORAGE_KEY = "bee-reviews-property";
 
 interface Property { id: string; name: string; }
 
@@ -41,10 +43,24 @@ export function ReviewFilters({ properties }: { properties: Property[] }) {
       if (value) sp.set(key, value);
       else sp.delete(key);
       sp.delete("page");
+      // Persist selected property so it survives navigation away and back
+      if (key === "property") {
+        if (value) localStorage.setItem(STORAGE_KEY, value);
+        else localStorage.removeItem(STORAGE_KEY);
+      }
       router.replace(`${pathname}?${sp.toString()}`);
     },
     [router, pathname, searchParams]
   );
+
+  // On mount: if no property in URL but one was saved, restore it
+  useEffect(() => {
+    if (!searchParams.get("property")) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) update("property", saved);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (timerRef.current) clearTimeout(timerRef.current);
