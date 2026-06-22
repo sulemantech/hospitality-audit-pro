@@ -81,11 +81,11 @@ export function Header({ title, subtitle }: HeaderProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 h-8 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors shrink-0 max-w-[200px] focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/8 hover:bg-primary/14 px-3 h-9 text-sm font-semibold text-primary transition-colors shrink-0 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <Building2 className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span className="truncate">{selectedProp.name}</span>
-            <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
+            <Building2 className="h-3.5 w-3.5 shrink-0" />
+            {selectedProp.name}
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-[230px]">
