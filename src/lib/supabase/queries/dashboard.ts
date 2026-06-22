@@ -153,6 +153,75 @@ export async function getTopActionItems(limit = 5, propertyId?: string) {
   return data ?? [];
 }
 
+// Returns processed data for the 3 dashboard charts.
+export async function getDashboardChartData(propertyId?: string) {
+  const supabase = createAdminClient();
+  const now = new Date();
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const eightWeeksAgo   = new Date(now.getTime() - 56 * 24 * 60 * 60 * 1000);
+
+  let cQ = supabase
+    .from("complaints")
+    .select("created_at, category")
+    .gte("created_at", fourteenDaysAgo.toISOString());
+  let rQ = supabase
+    .from("reviews")
+    .select("review_date, rating")
+    .gte("review_date", eightWeeksAgo.toISOString().split("T")[0]);
+
+  if (propertyId) { cQ = cQ.eq("property_id", propertyId); rQ = rQ.eq("property_id", propertyId); }
+
+  const [{ data: complaints }, { data: reviews }] = await Promise.all([cQ, rQ]);
+
+  // ── 14-day trend ─────────────────────────────────────────────
+  const trend: Array<{ date: string; count: number }> = [];
+  const keyToIdx: Record<string, number> = {};
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split("T")[0];
+    keyToIdx[key] = trend.length;
+    trend.push({ date: d.toLocaleDateString("en", { month: "short", day: "numeric" }), count: 0 });
+  }
+  (complaints ?? []).forEach((c) => {
+    const key = c.created_at.split("T")[0];
+    if (keyToIdx[key] !== undefined) trend[keyToIdx[key]].count++;
+  });
+
+  // ── Category breakdown ────────────────────────────────────────
+  const cats: Record<string, number> = {};
+  (complaints ?? []).forEach((c) => {
+    const name = c.category.charAt(0).toUpperCase() + c.category.slice(1);
+    cats[name] = (cats[name] ?? 0) + 1;
+  });
+  const categoryBreakdown = Object.entries(cats)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+
+  // ── Weekly rating trend ───────────────────────────────────────
+  const weekMap: Record<string, { total: number; n: number }> = {};
+  (reviews ?? []).forEach((r) => {
+    const d   = new Date(r.review_date);
+    const day = d.getDay();
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+    const key = mon.toISOString().split("T")[0];
+    if (!weekMap[key]) weekMap[key] = { total: 0, n: 0 };
+    weekMap[key].total += Number(r.rating);
+    weekMap[key].n++;
+  });
+  const ratingTrend = Object.entries(weekMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-8)
+    .map(([date, { total, n }]) => ({
+      week: new Date(date).toLocaleDateString("en", { month: "short", day: "numeric" }),
+      avg:  Math.round((total / n) * 10) / 10,
+    }));
+
+  return { complaintTrend: trend, categoryBreakdown, ratingTrend };
+}
+
 // Returns open complaints that have been sitting untouched for > 2 hours.
 // Ordered oldest-first so the most neglected appear at the top.
 export async function getUnacknowledgedComplaints(propertyId?: string) {

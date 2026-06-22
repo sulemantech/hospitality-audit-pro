@@ -4,39 +4,32 @@
 
 @layer base {
   :root {
-    /* Warm ivory background — not sterile white */
-    --background: 40 30% 97%;
+    --background: 40 20% 97%;
     --foreground: 220 20% 10%;
 
-    /* Pure white cards on warm background */
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    /* Deep cypress green — Cyprus / nature / trust */
     --primary: 153 62% 21%;
     --primary-foreground: 0 0% 100%;
 
-    /* Warm stone secondary */
     --secondary: 40 15% 93%;
     --secondary-foreground: 220 20% 20%;
 
-    /* Muted backgrounds for subtle sections */
     --muted: 40 15% 95%;
     --muted-foreground: 220 9% 46%;
 
-    /* Hover accents — very light green tint */
     --accent: 153 40% 94%;
     --accent-foreground: 153 62% 18%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Warm gray borders */
-    --border: 40 12% 89%;
-    --input: 40 12% 89%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 153 62% 21%;
 
     --radius: 0.5rem;
@@ -51,60 +44,60 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/30;
-  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/25; }
 
-  /* Focus ring */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  /* Sidebar active item */
+  .text-balance { text-wrap: balance; }
+
+  /* Sidebar active nav indicator */
   .nav-item-active {
-    @apply bg-accent text-accent-foreground font-medium;
+    @apply font-medium;
     position: relative;
   }
-  .nav-item-active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    @apply bg-primary rounded-r-full;
-  }
+
   /* Status dot */
   .status-dot {
     @apply inline-block w-2 h-2 rounded-full;
   }
-  /* Metric card hover */
+
+  /* KPI / metric card */
   .metric-card {
-    @apply bg-card border border-border rounded-lg p-5 shadow-card transition-shadow duration-200;
+    @apply bg-card border border-border rounded-xl p-5 shadow-sm
+           transition-shadow duration-200 hover:shadow-md;
   }
-  .metric-card:hover {
-    @apply shadow-card-hover;
+
+  /* Subtle icon badge behind KPI icons */
+  .icon-badge {
+    @apply flex h-9 w-9 items-center justify-center rounded-lg;
   }
-  /* Print styles for PDF export */
+
+  /* Chart wrapper — keeps recharts from overflowing */
+  .chart-wrap {
+    @apply w-full overflow-hidden;
+  }
+
+  /* Fade-in for page content */
+  .animate-fade-in {
+    animation: fade-in 0.18s ease-out both;
+  }
+
+  /* Print */
   @media print {
     .no-print { display: none !important; }
     .print-break { page-break-after: always; }
     body { background: white; }
   }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
