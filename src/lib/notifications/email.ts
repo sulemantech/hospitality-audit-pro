@@ -1,12 +1,16 @@
 import { Resend } from "resend";
 
-if (!process.env.RESEND_API_KEY) {
-  console.error("[email] RESEND_API_KEY is not set — emails will fail");
-}
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Bee Hospitality <onboarding@resend.dev>";
 const ALERT_EMAIL = process.env.ALERT_EMAIL ?? "metafront.net@gmail.com";
+
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.error("[email] RESEND_API_KEY is not set — emails will fail");
+    throw new Error("RESEND_API_KEY is not set");
+  }
+  return new Resend(key);
+}
 
 export async function sendComplaintEmail({
   severity,
@@ -28,7 +32,7 @@ export async function sendComplaintEmail({
   const colour = severity === "critical" ? "#dc2626" : severity === "high" ? "#ea580c" : "#d97706";
   const room = roomNumber ? `Room ${roomNumber} · ` : "";
 
-  const result = await resend.emails.send({
+  const result = await getResend().emails.send({
     from: FROM,
     to: ALERT_EMAIL,
     subject: `[${severity.toUpperCase()}] ${category} complaint — ${propertyName}`,
