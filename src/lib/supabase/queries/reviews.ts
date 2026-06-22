@@ -20,7 +20,9 @@ export async function getReviews(filters: ReviewFilters = {}) {
     .select(
       `id, property_id, source, rating, reviewer_name, review_text,
        review_date, flagged_keywords, flag_count, sentiment, sentiment_score,
-       imported_at, properties(id, name, type)`,
+       imported_at, ai_summary, ai_severity, ai_emotion, ai_topics,
+       ai_action, ai_systemic_risk, ai_analyzed_at,
+       properties(id, name, type)`,
       { count: "exact" }
     )
     .order("review_date", { ascending: false });

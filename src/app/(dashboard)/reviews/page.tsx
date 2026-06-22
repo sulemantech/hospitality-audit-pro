@@ -229,26 +229,63 @@ interface ReviewRow {
   reviewer_name: string | null; review_text: string; review_date: string;
   flagged_keywords: string[] | null; flag_count: number;
   sentiment: string | null; sentiment_score: number | null; imported_at: string;
+  // AI fields — null until nightly engine runs
+  ai_summary: string | null;
+  ai_severity: string | null;
+  ai_emotion: string | null;
+  ai_topics: string[] | null;
+  ai_action: string | null;
+  ai_systemic_risk: boolean | null;
+  ai_analyzed_at: string | null;
 }
+
+const EMOTION_EMOJI: Record<string, string> = {
+  angry: "😡", frustrated: "😤", disappointed: "😞",
+  neutral: "😐", satisfied: "🙂", delighted: "😄",
+};
+
+const AI_SEVERITY_COLOR: Record<string, string> = {
+  critical: "bg-red-100 text-red-700 border-red-200",
+  high:     "bg-orange-100 text-orange-700 border-orange-200",
+  medium:   "bg-amber-100 text-amber-700 border-amber-200",
+  low:      "bg-stone-100 text-stone-600 border-stone-200",
+  positive: "bg-green-100 text-green-700 border-green-200",
+};
 
 function ReviewCard({ review, propName }: { review: ReviewRow; propName: string }) {
   const flagged = review.flag_count > 0;
+  const hasAI = !!review.ai_analyzed_at;
+  const isNegativeAI = review.ai_severity === "critical" || review.ai_severity === "high";
+
   return (
-    <Card className={cn(flagged && review.sentiment === "negative" ? "border-orange-200 bg-orange-50/30" : "")}>
+    <Card className={cn(
+      hasAI && isNegativeAI ? "border-orange-200" :
+      flagged && review.sentiment === "negative" ? "border-orange-200 bg-orange-50/30" : ""
+    )}>
       <CardContent className="p-4">
+        {/* Header row */}
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap min-w-0">
             <RatingBadge rating={review.rating} />
             <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-medium", SOURCE_COLOR[review.source] ?? SOURCE_COLOR.other)}>
               {SOURCE_LABEL[review.source] ?? review.source}
             </span>
-            <Badge
-              variant={review.sentiment as "positive" | "neutral" | "negative"}
-              className="capitalize text-[11px]"
-            >
-              {review.sentiment}
-            </Badge>
-            {flagged && (
+            {/* Show AI severity if available, else keyword sentiment */}
+            {hasAI && review.ai_severity ? (
+              <span className={cn("rounded-md border px-2 py-0.5 text-[11px] font-semibold capitalize", AI_SEVERITY_COLOR[review.ai_severity])}>
+                {EMOTION_EMOJI[review.ai_emotion ?? ""] ?? ""} {review.ai_severity}
+              </span>
+            ) : (
+              <Badge variant={review.sentiment as "positive" | "neutral" | "negative"} className="capitalize text-[11px]">
+                {review.sentiment}
+              </Badge>
+            )}
+            {review.ai_systemic_risk && (
+              <span className="rounded-md bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700">
+                systemic risk
+              </span>
+            )}
+            {flagged && !hasAI && (
               <span className="flex items-center gap-1 text-[11px] text-orange-600 font-medium">
                 <AlertTriangle className="h-3 w-3" />
                 {review.flag_count} flag{review.flag_count > 1 ? "s" : ""}
@@ -263,11 +300,46 @@ function ReviewCard({ review, propName }: { review: ReviewRow; propName: string 
           </div>
         </div>
 
-        <p className="mt-2 text-sm text-foreground leading-relaxed line-clamp-3">
+        {/* AI insight block — shown when Gemini has analyzed the review */}
+        {hasAI && review.ai_summary && (
+          <div className={cn(
+            "mt-3 rounded-lg border px-3 py-2.5",
+            isNegativeAI ? "border-orange-200 bg-orange-50/60" : "border-green-200 bg-green-50/60"
+          )}>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              AI Analysis
+            </p>
+            <p className="text-sm text-foreground leading-snug">{review.ai_summary}</p>
+
+            {/* Topics */}
+            {(review.ai_topics?.length ?? 0) > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {(review.ai_topics ?? []).map((t) => (
+                  <span key={t} className="rounded-full bg-white/80 border border-border px-2 py-0.5 text-[10px] font-medium text-foreground">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Suggested action — only for high/critical */}
+            {isNegativeAI && review.ai_action && (
+              <div className="mt-2 pt-2 border-t border-orange-200/60">
+                <p className="text-[11px] text-orange-800">
+                  <span className="font-semibold">Action: </span>{review.ai_action}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Original review text */}
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">
           {review.review_text}
         </p>
 
-        {flagged && (review.flagged_keywords?.length ?? 0) > 0 && (
+        {/* Keyword flags — only if no AI yet */}
+        {!hasAI && flagged && (review.flagged_keywords?.length ?? 0) > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {(review.flagged_keywords ?? []).map((kw: string) => (
               <span key={kw} className="rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-700">
@@ -275,6 +347,11 @@ function ReviewCard({ review, propName }: { review: ReviewRow; propName: string 
               </span>
             ))}
           </div>
+        )}
+
+        {/* Pending AI badge */}
+        {!hasAI && (
+          <p className="mt-2 text-[10px] text-muted-foreground/60">AI analysis pending · runs nightly</p>
         )}
       </CardContent>
     </Card>
