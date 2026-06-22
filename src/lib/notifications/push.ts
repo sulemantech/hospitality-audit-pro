@@ -1,5 +1,7 @@
 const NTFY_TOPIC = process.env.NTFY_TOPIC ?? "bee-audit-alerts-2026";
-const NTFY_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
+
+// ntfy priority numbers: 5=urgent, 4=high, 3=default, 2=low
+const PRIORITY_NUM: Record<string, number> = { urgent: 5, high: 4, default: 3, low: 2 };
 
 type Priority = "urgent" | "high" | "default" | "low";
 
@@ -15,17 +17,20 @@ export async function sendPush({
   tags?: string[];
 }) {
   try {
-    const res = await fetch(NTFY_URL, {
+    // Use JSON body so Unicode/emoji in title/message work (header values are ASCII-only)
+    const res = await fetch("https://ntfy.sh", {
       method: "POST",
-      headers: {
-        "Title": title,
-        "Priority": priority,
-        "Tags": tags.join(","),
-        "Content-Type": "text/plain",
-      },
-      body: message,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: NTFY_TOPIC,
+        title,
+        message,
+        priority: PRIORITY_NUM[priority] ?? 3,
+        tags,
+      }),
     });
-    if (!res.ok) console.error(`[ntfy] HTTP ${res.status} posting to ${NTFY_URL}`);
+    if (!res.ok) console.error(`[ntfy] HTTP ${res.status}:`, await res.text());
+    else console.log(`[ntfy] Push sent: "${title}"`);
   } catch (err) {
     console.error("[ntfy] fetch failed:", err);
   }

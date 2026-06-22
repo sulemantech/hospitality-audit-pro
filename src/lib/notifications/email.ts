@@ -6,7 +6,7 @@ if (!process.env.RESEND_API_KEY) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Bee Hospitality <onboarding@resend.dev>";
-const ALERT_EMAIL = process.env.ALERT_EMAIL ?? "shahsuliman@gmail.com";
+const ALERT_EMAIL = process.env.ALERT_EMAIL ?? "metafront.net@gmail.com";
 
 export async function sendComplaintEmail({
   severity,
