@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = "bee-complaints-property";
+const STORAGE_KEY = "bee-property";
 
 interface Property { id: string; name: string; type: string; }
 
@@ -38,10 +38,16 @@ export function ComplaintFilters({ properties, searchParams }: Props) {
   );
 
   // On mount: restore saved property if URL has none
+  // Use window.location.search directly — avoids stale searchParams closure
   useEffect(() => {
-    if (!searchParams.property) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get("property")) {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) update("property", saved);
+      if (saved) {
+        urlParams.set("property", saved);
+        urlParams.delete("page");
+        router.replace(`${pathname}?${urlParams.toString()}`);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
