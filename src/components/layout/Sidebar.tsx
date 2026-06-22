@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, MessageSquareWarning, Star, TrendingDown,
-  ClipboardList, FileText, Settings, LogOut, ChevronDown,
+  ClipboardList, FileText, Settings, LogOut,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
