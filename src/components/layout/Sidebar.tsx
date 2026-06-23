@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, MessageSquareWarning, Star, TrendingDown,
   ClipboardList, FileText, Settings, LogOut,
@@ -32,8 +33,15 @@ const TEXT_OFF = "rgba(255,255,255,0.55)";
 
 export function Sidebar({ user }: { user?: AppUser | null }) {
   const pathname     = usePathname();
+  const router       = useRouter();
   const searchParams = useSearchParams();
   const propertyId   = searchParams.get("property");
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   function navHref(base: string) {
     return propertyId ? `${base}?property=${propertyId}` : base;
@@ -154,7 +162,10 @@ export function Sidebar({ user }: { user?: AppUser | null }) {
               <Settings className="h-4 w-4" /> Account settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive">
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive cursor-pointer"
+              onClick={handleSignOut}
+            >
               <LogOut className="h-4 w-4" /> Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

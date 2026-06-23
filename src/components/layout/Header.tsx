@@ -14,42 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProperties, ALL_PROPERTY } from "@/components/layout/PropertyContext";
-
-interface Notification {
-  id: string;
-  title: string;
-  description: string;
-  type: "critical" | "high" | "medium" | "info";
-  time: string;
-  read: boolean;
-}
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    title: "Critical complaint",
-    description: "Pest sighting reported — Bee Hostel Paphos, Room 12",
-    type: "critical",
-    time: "5m ago",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "New negative review",
-    description: "1-star review received on Booking.com — Hotel A",
-    type: "high",
-    time: "1h ago",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Action item overdue",
-    description: "AC repair in Room 8 — Bee Hostel Limassol",
-    type: "medium",
-    time: "2h ago",
-    read: false,
-  },
-];
+import { useNotifications } from "@/components/layout/NotificationsContext";
 
 interface HeaderProps {
   title: string;
@@ -58,6 +23,7 @@ interface HeaderProps {
 
 export function Header({ title, subtitle }: HeaderProps) {
   const properties   = useProperties();
+  const notifications = useNotifications();
   const pathname     = usePathname();
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -72,7 +38,7 @@ export function Header({ title, subtitle }: HeaderProps) {
     router.replace(`${pathname}?${sp.toString()}`);
   }
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-4">
@@ -141,31 +107,39 @@ export function Header({ title, subtitle }: HeaderProps) {
         <DropdownMenuContent align="end" className="w-[320px]">
           <DropdownMenuLabel className="flex items-center justify-between">
             Notifications
-            <Badge variant="critical" className="text-[10px] py-0">
-              {unreadCount} new
-            </Badge>
+            {unreadCount > 0 && (
+              <Badge variant="critical" className="text-[10px] py-0">
+                {unreadCount} new
+              </Badge>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {MOCK_NOTIFICATIONS.map((notif) => (
-            <DropdownMenuItem key={notif.id} className="flex-col items-start gap-1 py-2.5">
-              <div className="flex items-center gap-2 w-full">
-                <span
-                  className={`status-dot shrink-0 ${
-                    notif.type === "critical" ? "bg-red-500"
-                    : notif.type === "high"   ? "bg-orange-500"
-                    : notif.type === "medium" ? "bg-amber-500"
-                    : "bg-blue-500"
-                  }`}
-                />
-                <span className="text-sm font-medium flex-1">{notif.title}</span>
-                <span className="text-[10px] text-muted-foreground">{notif.time}</span>
-              </div>
-              <p className="text-xs text-muted-foreground pl-4">{notif.description}</p>
-            </DropdownMenuItem>
-          ))}
+          {notifications.length === 0 ? (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              No recent alerts — all clear!
+            </div>
+          ) : (
+            notifications.map((notif) => (
+              <DropdownMenuItem key={notif.id} className="flex-col items-start gap-1 py-2.5">
+                <div className="flex items-center gap-2 w-full">
+                  <span
+                    className={`status-dot shrink-0 ${
+                      notif.type === "critical" ? "bg-red-500"
+                      : notif.type === "high"   ? "bg-orange-500"
+                      : notif.type === "medium" ? "bg-amber-500"
+                      : "bg-blue-500"
+                    }`}
+                  />
+                  <span className="text-sm font-medium flex-1 truncate">{notif.title}</span>
+                  <span className="text-[10px] text-muted-foreground shrink-0">{notif.time}</span>
+                </div>
+                <p className="text-xs text-muted-foreground pl-4 line-clamp-2">{notif.description}</p>
+              </DropdownMenuItem>
+            ))
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem className="justify-center text-xs text-primary font-medium">
-            View all notifications
+            View all alerts
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
