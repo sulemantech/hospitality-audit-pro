@@ -141,12 +141,15 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 ## Progress Overview
 | Milestone | Total | Done | Remaining |
 |---|---|---|---|
-| Week 1 — Foundation | 10 | 5 | 5 |
+| Week 1 — Foundation | 11 | 7 | 4 |
 | Week 2 — Core Operations | 11 | 8 | 3 |
 | Week 3 — Intelligence Layer | 11 | 1 | 10 |
-| Week 4 — Polish & Deploy | 9 | 0 | 9 |
+| Week 4 — Polish & Deploy | 9 | 1 | 8 |
+| **Phase 1.5 — Proactive Layer** | **7** | **1** | **6** |
 | Phase 2 — AI Layer | 6 | 0 | 6 |
-| **Total** | **47** | **14** | **33** |
+| **Total** | **55** | **18** | **37** |
+
+> Last updated: 2026-06-25. Week 1 +2 (W1-4 keep-alive ✅, W1-6a auth/logout ✅). Week 4 +1 (W4-6 Vercel deploy ✅). Phase 1.5 added (7 items, PA-4 notifications ✅).
 
 ---
 
@@ -188,9 +191,9 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Write and run SQL migrations for all core tables: `properties`, `users` (extends auth.users), `complaints`, `complaint_updates`, `reviews`, `review_keywords`, `financial_entries`, `supplier_prices`, `utility_readings`, `tasks`, `alerts`, `attachments`, `audit_logs`. Include all ENUMs, FK constraints, indexes on `property_id` + `created_at`.
   > ✅ Done when: All tables visible in Supabase Studio, foreign keys enforced, seed script runs without error.
 
-- [ ] **W1-4** `p0` `M` `chore` `infra` `week-1`
+- [x] **W1-4** `p0` `M` `chore` `infra` `week-1` ✅ 2026-06-23
   **Supabase keep-alive: Prevent 7-day free-tier pause**
-  Create a Supabase Edge Function `keep-alive` that runs a lightweight SELECT. Register with UptimeRobot (free) to ping every 5 minutes. Document setup in README.
+  Created `/api/ping` endpoint (lightweight Supabase SELECT, no email side-effects). UptimeRobot configured with two monitors: `/api/ping` every 5 minutes (keep-alive) + `/api/digest` every 24 hours (daily email digest). Kept separate to avoid spamming Resend quota.
   > ✅ Done when: UptimeRobot shows green. Supabase project stays active through a weekend with no manual logins.
 
 - [x] **W1-5** `p0` `L` `feature` `infra` `week-1` ✅ 2026-06-19
@@ -200,10 +203,15 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 
 ### Module: Authentication & RBAC
 
-- [ ] **W1-6** `p0` `L` `feature` `auth` `week-1`
-  **Auth: Email/password login, logout, forgot password**
-  Implement Supabase Auth with `@supabase/ssr`. Login page (`/login`), logout action, forgot-password page (`/forgot-password`) with email link. Auth middleware protecting all `/dashboard/*` routes. Redirect to dashboard on success.
-  > ✅ Done when: Login/logout cycle works. Password reset email received and link valid. Unauthenticated users redirected to `/login`.
+- [x] **W1-6a** `p0` `L` `feature` `auth` `week-1` ✅ 2026-06-23
+  **Auth: Email/password login + logout + real session user in layout**
+  Login page at `/login` with Supabase Auth. Middleware enforces auth on all dashboard routes in production. Layout loads real user from `supabase.auth.getUser()` — MOCK_USER removed. Sidebar sign-out button wired to `supabase.auth.signOut()` + redirect to `/login`. User metadata (`full_name`, `role`) readable from Supabase `raw_user_meta_data` — set via SQL UPDATE on `auth.users`.
+  > ✅ Done when: Login/logout cycle works. Real user name shown in sidebar. Unauthenticated users redirected to `/login`.
+
+- [ ] **W1-6b** `p0` `M` `feature` `auth` `phase-1.5`
+  **Auth: Forgot password flow**
+  Add "Forgot password?" link on `/login`. New page `/forgot-password` → `supabase.auth.resetPasswordForEmail()` → shows confirmation. New page `/reset-password` (Supabase redirect target) → `supabase.auth.updateUser({ password })` → redirects to dashboard.
+  > ✅ Done when: Full reset cycle works end-to-end. Staff member can self-serve a forgotten password without admin intervention.
 
 - [ ] **W1-7** `p0` `XL` `feature` `auth` `week-1`
   **RBAC: Supabase Row Level Security for 4 roles**
@@ -401,9 +409,9 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Add skeleton loaders to all data tables and KPI cards. Empty state illustrations (with Tailwind/SVG) for: no complaints, no reviews, no financial data, no alerts. React error boundaries on all major page sections with "Something went wrong — try refreshing" fallback. Toast notifications (shadcn Toaster) for all create/update/delete actions.
   > ✅ Done when: Dashboard on slow network shows skeletons, not blank space. Deleting a complaint shows success toast. Broken API shows error boundary, not white screen.
 
-- [ ] **W4-6** `p0` `L` `chore` `infra` `week-4`
+- [x] **W4-6** `p0` `L` `chore` `infra` `week-4` ✅ 2026-06-23
   **Vercel production deployment: Config, env vars, domain**
-  Deploy to Vercel. Configure all production env vars (Supabase prod project, Resend API key). Set up custom domain (if client has one) or use `.vercel.app` subdomain. Configure Vercel cron job (optional, for weekly email). Add `robots.txt` blocking indexing (internal tool). Test all auth flows on production URL.
+  Deployed to Vercel Hobby. All env vars configured: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `RESEND_API_KEY`, `ALERT_EMAIL`. Production URL: `https://hospitality-audit-ai-jet.vercel.app`. All modules functional in production.
   > ✅ Done when: Production URL loads, login works, all 5 properties seeded, all modules functional. No console errors on production.
 
 - [ ] **W4-7** `p1` `M` `chore` `infra` `week-4`
@@ -420,6 +428,58 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   **Security: GDPR basics + data protection**
   Add Privacy Notice to login page footer ("Guest data processed under GDPR Art. 6(1)(f)"). Add `audit_logs` entries for all create/update/delete on complaints and reviews (user_id, action, record_id, timestamp). Add data retention notice to report page ("Data retained for 5 years per policy"). Confirm Supabase data is stored in EU region.
   > ✅ Done when: Login page shows privacy notice. Every complaint edit creates an audit_log row. Supabase project region confirmed as EU (Frankfurt/Ireland).
+
+---
+
+## ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PHASE 1.5 — Proactive Agent Layer
+### Target: Current sprint (system is live, now make it come to you)
+## ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> **Goal:** The dashboard shows data when you open it. Phase 1.5 makes the system come to you — notifying, escalating, and generating plans automatically. Three agents built on the existing stack (no new infrastructure). Architecture decision: event-driven agents via background fetch in server actions + scheduled agents via Make.com HTTP calls. No Supabase Edge Functions needed at this scale.
+
+### Module: Auth Completion
+
+- [ ] **PA-1** `p0` `M` `feature` `auth` `phase-1.5`
+  **Password reset: /forgot-password + /reset-password pages**
+  Add "Forgot password?" link to `/login`. Page `/forgot-password`: email input → `supabase.auth.resetPasswordForEmail()` → "Check your email" confirmation. Page `/reset-password` (Supabase redirect target): new password + confirm fields → `supabase.auth.updateUser({ password })` → redirect to `/dashboard`. Update auth middleware to allow `/reset-password` without session.
+  > ✅ Done when: Staff member who forgot password can self-serve the full reset cycle without admin help. Reset link expires after 1 hour (Supabase default).
+
+### Module: Settings
+
+- [ ] **PA-2** `p0` `M` `feature` `infra` `phase-1.5`
+  **Settings → Properties CRUD: View and edit the 5 properties**
+  Replace the settings skeleton with a functional properties section. Table: name, type badge (hotel/hostel), location, total_rooms, status. Edit modal: update name, type, location, total_rooms. No delete (properties are FK-referenced across all tables — deactivate instead). Server action calls `createAdminClient()` to update. Admin-only (role check).
+  > ✅ Done when: Admin edits "Hotel A" to its real name. Change reflects immediately in the header property dropdown and complaint form without redeployment.
+
+### Module: Complaint Workflow
+
+- [ ] **PA-3** `p1` `M` `feature` `complaints` `phase-1.5`
+  **Complaint detail: Status update actions + resolution timeline**
+  The complaint detail page (`/complaints/[id]`) exists but has no status-change UI. Add action buttons: "Mark In Progress" (open → pending), "Resolve" (→ resolved, requires resolution note min 10 chars), "Close" (→ closed). Each action is a server action that: updates status on `complaints` row + inserts into `complaint_updates` (user, action, note, timestamp). Timeline renders all updates chronologically.
+  > ✅ Done when: Open complaint → "Mark In Progress" → status badge changes → timeline entry appears. Resolve prompts for a note. Closed complaints cannot be re-opened by Staff role.
+
+### Module: Proactive Agents
+
+- [x] **PA-4** `p1` `S` `feature` `notifications` `phase-1.5` ✅ 2026-06-23
+  **Live notifications: Real alerts + complaints in header bell**
+  Replaced hardcoded `MOCK_NOTIFICATIONS` array with `NotificationsContext` — layout fetches active alerts + recent critical/high open complaints from DB and passes via React context. Header bell shows real unread count. Empty state: "No recent alerts — all clear!" Pattern mirrors `PropertyContext`.
+  > ✅ Done: Header bell count reflects actual DB state. No mock data in production.
+
+- [ ] **PA-5** `p0` `L` `feature` `ai` `phase-1.5`
+  **Triage Agent: AI auto-corrects complaint severity on submit**
+  After `logComplaint()` inserts to DB, fire a non-blocking `fetch` to `/api/triage` (background, user not waiting). The triage route: calls Gemini with the complaint description + category, returns `{ corrected_severity, confidence, action_note, reasoning }`. If `confidence > 0.8` and severity differs from staff input: update complaint row + push notification "AI upgraded severity: [old] → [new]". Write result to `complaint_updates` timeline as a system entry tagged `[AI Triage]`.
+  > ✅ Done when: Staff logs "guest noticed small moving things on mattress" as Medium → within 30s the complaint updates to Critical with AI note "Suspected pest sighting — inspect mattress and adjacent rooms immediately" visible in timeline.
+
+- [ ] **PA-6** `p0` `L` `feature` `ai` `phase-1.5`
+  **Escalation Agent: Push + email when complaints breach SLA thresholds**
+  New API route `/api/escalation-check`. Queries all `open`/`pending` complaints. Checks age against severity SLA: Critical > 1h, High > 4h, Medium > 24h, Low > 72h. For each breach: sends push (ntfy) + email (Resend) with complaint summary. Increments `escalation_count` on complaint and records `last_escalated_at` — prevents repeat notifications on next check cycle. Make.com scenario: HTTP GET → `/api/escalation-check` every 30 minutes.
+  > ✅ Done when: A Critical complaint open for 90 minutes triggers one push notification. The next 30-minute Make.com run does NOT re-notify (already escalated). Resolving the complaint stops future escalations.
+
+- [ ] **PA-7** `p1` `S` `chore` `ai` `phase-1.5`
+  **Strategist scheduling: Fresh action plan every morning via Make.com**
+  Make.com scenario at 07:00 daily: (1) HTTP GET → `/api/engine/nightly` (AI-analyze unprocessed reviews), (2) HTTP POST → `/api/action-plan/generate` (generate and save today's plan). Owner opens `/action-plan` at 8am and sees a fresh plan — no "Generate" click required. Make.com free tier supports this volume easily.
+  > ✅ Done when: At 7am, action plan `generated_at` timestamp reflects today. Nightly engine processes any overnight review imports automatically.
 
 ---
 
@@ -475,3 +535,7 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 | 2026-06-19 | UptimeRobot keep-alive | Supabase free tier pauses after 7 days inactivity |
 | 2026-06-19 | Resend for email | Free 3000/month, React Email templates, simple API |
 | 2026-06-19 | Phase 2 AI deferred | Validate business value in MVP first before API spend |
+| 2026-06-23 | UptimeRobot split into 2 monitors | /api/ping (5min, no side-effects) + /api/digest (24h, sends email). Single monitor on /api/digest was spamming Resend quota every 5 min |
+| 2026-06-23 | Proactive agents via background fetch + Make.com | Avoids Supabase Edge Function complexity. Triage fires as non-blocking fetch in server action. Escalation + Strategist scheduling via Make.com HTTP triggers. No new infrastructure needed |
+| 2026-06-23 | Comms Agent deferred to Phase 2 | Real value only when WhatsApp is integrated. ntfy + Resend handle current notification needs with hardcoded templates |
+| 2026-06-25 | Phase 1.5 Proactive Layer defined | 7 items: password reset, properties CRUD, complaint status UI, live notifications (done), Triage Agent, Escalation Agent, Strategist scheduling |
