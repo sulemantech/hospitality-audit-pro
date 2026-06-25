@@ -145,11 +145,11 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 | Week 2 — Core Operations | 11 | 8 | 3 |
 | Week 3 — Intelligence Layer | 11 | 1 | 10 |
 | Week 4 — Polish & Deploy | 9 | 1 | 8 |
-| **Phase 1.5 — Proactive Layer** | **7** | **1** | **6** |
+| **Phase 1.5 — Proactive Layer** | **7** | **6** | **1** |
 | Phase 2 — AI Layer | 6 | 0 | 6 |
-| **Total** | **55** | **18** | **37** |
+| **Total** | **55** | **23** | **32** |
 
-> Last updated: 2026-06-25. Week 1 +2 (W1-4 keep-alive ✅, W1-6a auth/logout ✅). Week 4 +1 (W4-6 Vercel deploy ✅). Phase 1.5 added (7 items, PA-4 notifications ✅).
+> Last updated: 2026-06-25. Phase 1.5 sprint: PA-1 (password reset) ✅, PA-2 (properties CRUD) ✅, PA-3 (complaint status actions, already done) ✅, PA-4 (notifications) ✅, PA-5 (Triage Agent) ✅, PA-6 (Escalation Agent) ✅. PA-7 (Make.com scheduling) remaining — config only, no new code.
 
 ---
 
@@ -440,23 +440,23 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 
 ### Module: Auth Completion
 
-- [ ] **PA-1** `p0` `M` `feature` `auth` `phase-1.5`
+- [x] **PA-1** `p0` `M` `feature` `auth` `phase-1.5` ✅ 2026-06-25
   **Password reset: /forgot-password + /reset-password pages**
-  Add "Forgot password?" link to `/login`. Page `/forgot-password`: email input → `supabase.auth.resetPasswordForEmail()` → "Check your email" confirmation. Page `/reset-password` (Supabase redirect target): new password + confirm fields → `supabase.auth.updateUser({ password })` → redirect to `/dashboard`. Update auth middleware to allow `/reset-password` without session.
+  Add "Forgot password?" link to `/login`. Page `/forgot-password`: email input → `supabase.auth.resetPasswordForEmail()` → "Check your email" confirmation. Page `/reset-password` (Supabase redirect target): new password + confirm fields → `supabase.auth.updateUser({ password })` → redirect to `/dashboard`. Update auth middleware to allow `/forgot-password` and `/reset-password` without session. Handles both PKCE code exchange (email link) and hash-based PASSWORD_RECOVERY flow.
   > ✅ Done when: Staff member who forgot password can self-serve the full reset cycle without admin help. Reset link expires after 1 hour (Supabase default).
 
 ### Module: Settings
 
-- [ ] **PA-2** `p0` `M` `feature` `infra` `phase-1.5`
+- [x] **PA-2** `p0` `M` `feature` `infra` `phase-1.5` ✅ 2026-06-25
   **Settings → Properties CRUD: View and edit the 5 properties**
-  Replace the settings skeleton with a functional properties section. Table: name, type badge (hotel/hostel), location, total_rooms, status. Edit modal: update name, type, location, total_rooms. No delete (properties are FK-referenced across all tables — deactivate instead). Server action calls `createAdminClient()` to update. Admin-only (role check).
+  Replaced the settings skeleton with a functional properties editor. `PropertyEditor` client component: lists all properties with hotel/hostel icon, location, and room count. Edit button opens shadcn Dialog with `react-hook-form` + Zod validation. `updateProperty()` server action uses `createAdminClient()` to bypass RLS. `router.refresh()` after save — dropdown updates without redeployment.
   > ✅ Done when: Admin edits "Hotel A" to its real name. Change reflects immediately in the header property dropdown and complaint form without redeployment.
 
 ### Module: Complaint Workflow
 
-- [ ] **PA-3** `p1` `M` `feature` `complaints` `phase-1.5`
+- [x] **PA-3** `p1` `M` `feature` `complaints` `phase-1.5` ✅ 2026-06-23
   **Complaint detail: Status update actions + resolution timeline**
-  The complaint detail page (`/complaints/[id]`) exists but has no status-change UI. Add action buttons: "Mark In Progress" (open → pending), "Resolve" (→ resolved, requires resolution note min 10 chars), "Close" (→ closed). Each action is a server action that: updates status on `complaints` row + inserts into `complaint_updates` (user, action, note, timestamp). Timeline renders all updates chronologically.
+  `ComplaintActions.tsx` handles open→pending, pending→resolved (requires resolution note, sets `resolved_at`), →closed transitions via Supabase browser client. `ComplaintTimeline.tsx` renders chronological updates + "Add Note" form. Both components were already fully built and wired to the complaint detail page. Writes to `complaint_updates` on every action.
   > ✅ Done when: Open complaint → "Mark In Progress" → status badge changes → timeline entry appears. Resolve prompts for a note. Closed complaints cannot be re-opened by Staff role.
 
 ### Module: Proactive Agents
@@ -466,15 +466,15 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   Replaced hardcoded `MOCK_NOTIFICATIONS` array with `NotificationsContext` — layout fetches active alerts + recent critical/high open complaints from DB and passes via React context. Header bell shows real unread count. Empty state: "No recent alerts — all clear!" Pattern mirrors `PropertyContext`.
   > ✅ Done: Header bell count reflects actual DB state. No mock data in production.
 
-- [ ] **PA-5** `p0` `L` `feature` `ai` `phase-1.5`
+- [x] **PA-5** `p0` `L` `feature` `ai` `phase-1.5` ✅ 2026-06-25
   **Triage Agent: AI auto-corrects complaint severity on submit**
-  After `logComplaint()` inserts to DB, fire a non-blocking `fetch` to `/api/triage` (background, user not waiting). The triage route: calls Gemini with the complaint description + category, returns `{ corrected_severity, confidence, action_note, reasoning }`. If `confidence > 0.8` and severity differs from staff input: update complaint row + push notification "AI upgraded severity: [old] → [new]". Write result to `complaint_updates` timeline as a system entry tagged `[AI Triage]`.
-  > ✅ Done when: Staff logs "guest noticed small moving things on mattress" as Medium → within 30s the complaint updates to Critical with AI note "Suspected pest sighting — inspect mattress and adjacent rooms immediately" visible in timeline.
+  `/api/triage` POST route: loads complaint + property from DB, builds domain-specific Gemini prompt with common staff triage mistakes (pest sightings, safety hazards, billing disputes). Uses `generateObject()` with `TriageSchema` (Zod). If `confidence ≥ 0.80` and severity differs: updates complaint row + inserts `[AI TRIAGE]` note into timeline + sends push for upgrades only. `logComplaint()` updated to: (a) return `complaint_id` via `.select("id").single()`, (b) fire `fetch` to `APP_URL/api/triage` without awaiting — user sees success immediately. Requires `APP_URL` env var on Vercel.
+  > ✅ Done when: Staff logs "guest noticed small moving things on mattress" as Medium → within 30s the complaint updates to Critical with AI note visible in timeline.
 
-- [ ] **PA-6** `p0` `L` `feature` `ai` `phase-1.5`
+- [x] **PA-6** `p0` `L` `feature` `ai` `phase-1.5` ✅ 2026-06-25
   **Escalation Agent: Push + email when complaints breach SLA thresholds**
-  New API route `/api/escalation-check`. Queries all `open`/`pending` complaints. Checks age against severity SLA: Critical > 1h, High > 4h, Medium > 24h, Low > 72h. For each breach: sends push (ntfy) + email (Resend) with complaint summary. Increments `escalation_count` on complaint and records `last_escalated_at` — prevents repeat notifications on next check cycle. Make.com scenario: HTTP GET → `/api/escalation-check` every 30 minutes.
-  > ✅ Done when: A Critical complaint open for 90 minutes triggers one push notification. The next 30-minute Make.com run does NOT re-notify (already escalated). Resolving the complaint stops future escalations.
+  `/api/escalation-check` GET route: queries all `open`/`pending` complaints, filters those past SLA (Critical>1h, High>4h, Medium>24h, Low>72h), checks `complaint_updates` for existing `[AUTO-ESCALATION]` notes to prevent duplicate notifications. For new breaches: sends ntfy push + writes `[AUTO-ESCALATION]` timeline entry in parallel via `Promise.allSettled`. Dedup logic: once a complaint has an AUTO-ESCALATION note, subsequent runs skip it until it's resolved. Next step: configure Make.com to call this every 30 min.
+  > ✅ Done when: A Critical complaint open for 90 minutes triggers one push notification. The next 30-minute Make.com run does NOT re-notify (already escalated).
 
 - [ ] **PA-7** `p1` `S` `chore` `ai` `phase-1.5`
   **Strategist scheduling: Fresh action plan every morning via Make.com**
@@ -539,3 +539,6 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 | 2026-06-23 | Proactive agents via background fetch + Make.com | Avoids Supabase Edge Function complexity. Triage fires as non-blocking fetch in server action. Escalation + Strategist scheduling via Make.com HTTP triggers. No new infrastructure needed |
 | 2026-06-23 | Comms Agent deferred to Phase 2 | Real value only when WhatsApp is integrated. ntfy + Resend handle current notification needs with hardcoded templates |
 | 2026-06-25 | Phase 1.5 Proactive Layer defined | 7 items: password reset, properties CRUD, complaint status UI, live notifications (done), Triage Agent, Escalation Agent, Strategist scheduling |
+| 2026-06-25 | APP_URL env var required for Triage Agent | `logComplaint()` fires non-blocking fetch to `APP_URL/api/triage`. Must add `APP_URL=https://hospitality-audit-ai-jet.vercel.app` to Vercel env vars (server-side, not NEXT_PUBLIC_). Falls back to `http://localhost:3000` in local dev |
+| 2026-06-25 | Triage Agent uses Gemini 2.5 Flash + Zod schema | `generateObject()` with `TriageSchema`. Only intervenes when confidence ≥ 0.80 AND severity differs. Writes `[AI TRIAGE]` to timeline. Sends push only on upgrades (not downgrades) |
+| 2026-06-25 | Escalation Agent dedup via complaint_updates | Checks for existing `[AUTO-ESCALATION]` note before re-notifying. No new column needed — uses existing timeline table as state store |

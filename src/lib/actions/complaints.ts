@@ -18,17 +18,23 @@ export interface ComplaintInput {
 
 export async function logComplaint(
   data: ComplaintInput
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; complaint_id?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase.from("complaints").insert({
-    ...data,
-    room_number: data.room_number || null,
-    guest_name: data.guest_name || null,
-    assigned_to: data.assigned_to || null,
-  });
+  const { data: inserted, error } = await supabase
+    .from("complaints")
+    .insert({
+      ...data,
+      room_number: data.room_number || null,
+      guest_name:  data.guest_name  || null,
+      assigned_to: data.assigned_to || null,
+    })
+    .select("id")
+    .single();
 
   if (error) return { success: false, error: error.message };
+
+  const complaintId = inserted.id as string;
 
   // Send notifications for critical, high, and medium severity
   if (data.severity === "critical" || data.severity === "high" || data.severity === "medium") {
@@ -41,7 +47,6 @@ export async function logComplaint(
     const propertyName = property?.name ?? "Unknown Property";
     console.log(`[complaint] Firing notifications for ${data.severity} complaint at ${propertyName}`);
 
-    // Fire both in parallel, never block on failure
     const [pushResult, emailResult] = await Promise.allSettled([
       pushComplaintAlert({
         severity: data.severity,
@@ -61,9 +66,17 @@ export async function logComplaint(
         assignedTo: data.assigned_to,
       }),
     ]);
-    if (pushResult.status === "rejected") console.error("[complaint] Push failed:", pushResult.reason);
+    if (pushResult.status  === "rejected") console.error("[complaint] Push failed:",  pushResult.reason);
     if (emailResult.status === "rejected") console.error("[complaint] Email failed:", emailResult.reason);
   }
 
-  return { success: true };
+  // Fire triage in background — does not block the form response
+  const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+  fetch(`${appUrl}/api/triage`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ complaint_id: complaintId }),
+  }).catch((err) => console.error("[triage] background call failed:", err));
+
+  return { success: true, complaint_id: complaintId };
 }
