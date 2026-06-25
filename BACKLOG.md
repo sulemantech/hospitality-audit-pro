@@ -145,11 +145,11 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
 | Week 2 — Core Operations | 11 | 8 | 3 |
 | Week 3 — Intelligence Layer | 11 | 1 | 10 |
 | Week 4 — Polish & Deploy | 9 | 1 | 8 |
-| **Phase 1.5 — Proactive Layer** | **7** | **6** | **1** |
+| **Phase 1.5 — Proactive Layer** | **7** | **7** | **0** |
 | Phase 2 — AI Layer | 6 | 0 | 6 |
-| **Total** | **55** | **23** | **32** |
+| **Total** | **55** | **24** | **31** |
 
-> Last updated: 2026-06-25. Phase 1.5 sprint: PA-1 (password reset) ✅, PA-2 (properties CRUD) ✅, PA-3 (complaint status actions, already done) ✅, PA-4 (notifications) ✅, PA-5 (Triage Agent) ✅, PA-6 (Escalation Agent) ✅. PA-7 (Make.com scheduling) remaining — config only, no new code.
+> Last updated: 2026-06-25. Phase 1.5 COMPLETE — all 7 items done: PA-1 (password reset), PA-2 (properties CRUD), PA-3 (complaint status), PA-4 (notifications), PA-5 (Triage Agent), PA-6 (Escalation Agent), PA-7 (Strategist + /api/action-plan/generate).
 
 ---
 
@@ -476,9 +476,9 @@ P2-1 → P2-2 → P2-3 → P2-4 → P2-5 → P2-6
   `/api/escalation-check` GET route: queries all `open`/`pending` complaints, filters those past SLA (Critical>1h, High>4h, Medium>24h, Low>72h), checks `complaint_updates` for existing `[AUTO-ESCALATION]` notes to prevent duplicate notifications. For new breaches: sends ntfy push + writes `[AUTO-ESCALATION]` timeline entry in parallel via `Promise.allSettled`. Dedup logic: once a complaint has an AUTO-ESCALATION note, subsequent runs skip it until it's resolved. Next step: configure Make.com to call this every 30 min.
   > ✅ Done when: A Critical complaint open for 90 minutes triggers one push notification. The next 30-minute Make.com run does NOT re-notify (already escalated).
 
-- [ ] **PA-7** `p1` `S` `chore` `ai` `phase-1.5`
+- [x] **PA-7** `p1` `S` `chore` `ai` `phase-1.5` ✅ 2026-06-25
   **Strategist scheduling: Fresh action plan every morning via Make.com**
-  Make.com scenario at 07:00 daily: (1) HTTP GET → `/api/engine/nightly` (AI-analyze unprocessed reviews), (2) HTTP POST → `/api/action-plan/generate` (generate and save today's plan). Owner opens `/action-plan` at 8am and sees a fresh plan — no "Generate" click required. Make.com free tier supports this volume easily.
+  `/api/action-plan/generate` POST route added — thin wrapper around the existing `generateActionPlan()` server action. Accepts optional `{ property_id }` body; omit for all-property plan. Returns `{ plan_id, tasks, summary, generated_at }`. Make.com scenario (configure manually): HTTP GET `→ /api/engine/nightly` (3am, analyze reviews) then HTTP POST `→ /api/action-plan/generate` (7am, generate plan). Owner sees fresh plan at 8am with no manual click. All underlying code (`generateActionPlan`, `analyzeUnprocessedReviews`, `action_plans` / `action_tasks` tables, `ActionPlanClient`) was already built and wired.
   > ✅ Done when: At 7am, action plan `generated_at` timestamp reflects today. Nightly engine processes any overnight review imports automatically.
 
 ---
