@@ -1,6 +1,6 @@
 "use server";
 
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -102,9 +102,9 @@ Generate a prioritised action plan. Rules:
 `.trim();
 
   try {
-    const { object } = await generateObject({
+    const { output: object } = await generateText({
       model: google("gemini-2.5-flash"),
-      schema: ActionPlanSchema,
+      output: Output.object({ schema: ActionPlanSchema }),
       prompt,
     });
 

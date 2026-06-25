@@ -1,6 +1,6 @@
 "use server";
 
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -36,9 +36,9 @@ async function analyzeOne(review: {
   if (!apiKey || apiKey === "your-gemini-api-key-here") return null;
 
   try {
-    const { object } = await generateObject({
+    const { output: object } = await generateText({
       model: google("gemini-2.5-flash"),
-      schema: ReviewAnalysisSchema,
+      output: Output.object({ schema: ReviewAnalysisSchema }),
       prompt: `You are a hospitality intelligence analyst helping a hotel group in Cyprus understand guest feedback.
 
 Analyze this guest review and extract structured insights for hotel management.

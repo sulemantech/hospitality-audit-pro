@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -66,9 +66,9 @@ Respond with:
 `.trim();
 
   try {
-    const { object } = await generateObject({
+    const { output: object } = await generateText({
       model: google("gemini-2.5-flash"),
-      schema: TriageSchema,
+      output: Output.object({ schema: TriageSchema }),
       prompt,
     });
 
