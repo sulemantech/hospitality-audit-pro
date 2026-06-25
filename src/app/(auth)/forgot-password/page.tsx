@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         <CardHeader className="pb-4">
           <p className="text-sm font-medium text-foreground">Reset your password</p>
           <p className="text-xs text-muted-foreground">
-            Enter your work email and we'll send a reset link
+            Enter your work email and we&apos;ll send a reset link
           </p>
         </CardHeader>
         <CardContent>
