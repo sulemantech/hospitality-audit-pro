@@ -5,7 +5,23 @@
       "PowerShell(Stop-Process -Force)",
       "Bash(git push *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(npx next *)",
+      "Bash(curl -s http://localhost:3001/reviews)",
+      "Bash(curl -s --max-time 15 http://localhost:3001/reviews)",
+      "Bash(curl -s --max-time 20 http://localhost:3001/reviews)",
+      "Bash(findstr \"3000\\\\|3001\")",
+      "PowerShell(Start-Process -FilePath \"cmd\" -ArgumentList \"/c\", \"cd /d D:\\\\Projects\\\\hospitality-audit-pro && npx next dev 2>&1 > D:\\\\Projects\\\\hospitality-audit-pro\\\\dev-server.log\" -WindowStyle Hidden)",
+      "Bash(curl -s --max-time 30 \"http://localhost:3000/reviews\")",
+      "Bash(sed -i '1s/^/\"use client\";\\\\n\\\\n/' src/components/ui/card.tsx)",
+      "Bash(sed -i '1s/^/\"use client\";\\\\n\\\\n/' src/components/ui/button.tsx)",
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Projects\\\\hospitality-audit-pro\\\\src\\\\components\\\\dashboard\")",
+      "Bash(git commit *)",
+      "PowerShell(\\(Get-Content \"d:\\\\Projects\\\\hospitality-audit-pro\\\\src\\\\app\\\\\\(dashboard\\)\\\\layout.tsx\" -Raw\\) -replace 'w-\\\\[220px\\\\] border-r border-border bg-card', 'w-[72px] shrink-0\" style={{ background: \"#7C3AED\" }}' | Set-Content \"d:\\\\Projects\\\\hospitality-audit-pro\\\\src\\\\app\\\\\\(dashboard\\)\\\\layout.tsx\" -Encoding utf8)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.dependencies['@radix-ui/react-dialog'] || 'NOT INSTALLED'\\)\")",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('ai:', p.dependencies['ai'], '\\\\n@ai-sdk/google:', p.dependencies['@ai-sdk/google']\\)\")",
+      "Bash(node -e \"const ai = require\\('ai'\\); console.log\\(Object.keys\\(ai\\).filter\\(k => k.toLowerCase\\(\\).includes\\('object'\\) || k.toLowerCase\\(\\).includes\\('generate'\\)\\)\\)\")",
+      "Bash(node -e \"const fs = require\\('fs'\\); const d = fs.readFileSync\\('node_modules/ai/dist/index.d.ts', 'utf8'\\); const m = d.match\\(/deprecated[\\\\s\\\\S]{0,200}generateObject[\\\\s\\\\S]{0,200}/g\\); if\\(m\\) console.log\\(m[0]\\); else console.log\\('not found this way'\\); \")"
     ]
   }
 }
